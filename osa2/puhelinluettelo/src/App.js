@@ -39,8 +39,8 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    const nameExists = persons.map(person => person.name.toLowerCase())
-      .includes(newName.toLowerCase())
+    const nameExists = persons.map(person => person.name)
+      .includes(newName)
 
     if (nameExists) {
       const result = window.confirm(
@@ -49,7 +49,7 @@ const App = () => {
 
       if (result) {
         const personToUpdate = persons.find(person => 
-          person.name.toLowerCase() === newName.toLowerCase()
+          person.name === newName
         )
         updatePerson(personToUpdate)
       }
@@ -62,8 +62,8 @@ const App = () => {
 
       personService.create(person).then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
+        setNewMessageAndTimeout(`Added ${person.name}`)
       })
-      setNewMessageAndTimeout(`Added ${person.name}`)
     }
     setNewNumber('')
     setNewName('')
@@ -98,9 +98,9 @@ const App = () => {
       setNewMessage(null)
     }, 5000)
   }
-
+  
   const filterForPersonNames = persons.filter(person => 
-    person.name.toLowerCase().includes(newFilter.toLowerCase())
+    person.name.includes(newFilter)
   )
 
   return (
