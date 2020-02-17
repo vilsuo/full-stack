@@ -10,12 +10,6 @@ app.use(express.json())
 app.use(morgan('tiny'))
 app.use(express.static('build'))
 
-app.get('/api/persons', (request, response) => {
-  Person.find({}).then(persons => {
-    response.json(persons.map(person => person.toJSON()))
-  })
-})
-
 app.get('/info', (request, response) => {
   Person.countDocuments({}).then(result => {
     response.send(`
@@ -28,6 +22,12 @@ app.get('/info', (request, response) => {
   })
 })
 
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons.map(person => person.toJSON()))
+  })
+})
+
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id).then(result => {
     response.json(result)
@@ -36,6 +36,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
+  console.log('id to delete', request.params.id)
   Person.findByIdAndRemove(request.params.id)
     .then(result => {
       response.status(204).end()
@@ -73,12 +74,32 @@ app.post('/api/persons', (request, response) => {
   }
 })
 
+// EI TOIMI???????
+app.put('/api/persons/:id', (request, response) => {
+  console.log('pääsi')
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: request.params.id,
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      console.log('new: ', updatedPerson)
+      response.status(204).end()
+    })
+    .catch(error => console.log('error'))
+})
+
+// olemattomien osoitteiden käsittely
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
-// olemattomien osoitteiden käsittely
-app.use(unknownEndpoint)
+//app.use(unknownEndpoint)
 
+// virheellisten pyyntöjen käsittely
 const errorHandler = (error, request, response, next) => {
   console.log(error.message)
 
@@ -90,8 +111,7 @@ const errorHandler = (error, request, response, next) => {
 
   next(error)
 }
-// virheellisten pyyntöjen käsittely
-app.use(errorHandler)
+//app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "title": "uusi blogi",
-  "author": "ville suokas",
-  "url": "osoite",
+  "author": "ville",
+  "url": "www...",
   "likes": 0
 }

@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'https://safe-refuge-79052.herokuapp.com/api/persons'
+const baseUrl = 'http://localhost:3001/api/persons'
 
 const getAll = () => {
   const request = axios.get(baseUrl)
@@ -8,10 +8,7 @@ const getAll = () => {
 
 const create = newObject => {
   const request = axios.post(baseUrl, newObject)
-  return request.then(response => {
-    console.log('data', response)
-    return response.data}
-    )
+  return request.then(response => response.data)
 }
 
 const update = (id, newObject) => {

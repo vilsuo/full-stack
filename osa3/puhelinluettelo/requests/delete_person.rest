@@ -1,1 +1,1 @@
-DELETE https://mighty-cove-08198.herokuapp.com/api/persons/1
+DELETE http://localhost:3001/api/persons/5e41674a5e7aaf16fe437a29

@@ -71,11 +71,12 @@ const App = () => {
 
   const updatePerson = personToUpdate => {
     const updatedPerson = {...personToUpdate, name: newName, number: newNumber}
+    console.log('person to update: ', {updatedPerson})
     personService.update(personToUpdate.id, updatedPerson).then(response => {
       const updatedPersons = persons.filter(person => person.name !== personToUpdate.name).concat(updatedPerson)
       setPersons(updatedPersons)
+      setNewMessageAndTimeout(`Updated ${personToUpdate.name}`)
     })
-    setNewMessageAndTimeout(`Updated ${personToUpdate.name}`)
   }
 
   const deleteById = (id) => {
