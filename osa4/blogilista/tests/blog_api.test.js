@@ -3,6 +3,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const initialBlogs = [
   {
@@ -30,6 +31,28 @@ const initialBlogs = [
   }
 ]
 
+const initialUser = {
+  username: 'eka user',
+  name: 'ekan nimi',
+  password: 'ekan salasana'
+}
+
+beforeEach(async () => {
+  await Blog.deleteMany({})
+  await User.deleteMany({})
+
+  // välivaihe 4.17, jotta dbssä on eka useri
+  const userObject = new User(initialUser)
+  await userObject.save()
+
+  // tallennetaan kaikki blogit järjestyksessä
+  for (let blog of initialBlogs) {
+    let blogObject = new Blog(blog)
+    await api.post('/api/blogs')
+      .send(blogObject)
+  }
+})
+
 test('all blogs are returned', async () => {
   const response = await api.get('/api/blogs')
 
@@ -51,25 +74,17 @@ test('If a blog has no likes field then that blog has default zero likes', async
 })
 
 test('a blog with title and url can be added', async () => {
-  const blog = {
-    _id: "5a422b891b54a676234d17fa",
-    title: "First class tests",
-    author: "Robert C. Martin",
-    url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
-    likes: 10,
-    __v: 0
-  }
 
   await api
     .post('/api/blogs')
-    .send(blog)
+    .send(new Blog(initialBlogs[0]))
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
   const result = await api.get('/api/blogs')
   const titles = result.body.map(blog => blog.title)
 
-  expect(titles).toContain('First class tests')
+  expect(titles).toContain(initialBlogs[0].title)
 
   expect(result.body.length).toBe(initialBlogs.length + 1)
 })
@@ -84,26 +99,24 @@ test('a blog without title or url can\'t be added', async () => {
 
   await api
     .post('/api/blogs')
-    .send(blog)
+    .send(new Blog(blog))
     .expect(400)
 
   const response = await api.get('/api/blogs')
   expect(response.body.length).toBe(initialBlogs.length)
 })
 
+describe('', () => {
+  test('posted blog has existing userId in user-field ', async () => {
+    const response = await api.get('/api/blogs')
+    const firstBlog = response.body[0]
+    console.log('first blog', firstBlog)
+  
+    expect(firstBlog.user.id).toBeDefined()
 
-
-beforeEach(async () => {
-  await Blog.deleteMany({})
-
-  let blogObject = new Blog(initialBlogs[0])
-  await blogObject.save()
-
-  blogObject = new Blog(initialBlogs[1])
-  await blogObject.save()
-
-  blogObject = new Blog(initialBlogs[2])
-  await blogObject.save()
+    const user = await User.findById(firstBlog.user.id)
+    expect(user).toBeDefined
+  })
 })
 
 afterAll(() => {

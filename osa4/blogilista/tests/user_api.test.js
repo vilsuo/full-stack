@@ -1,4 +1,3 @@
-const mongoose = require('mongoose')
 const supertest = require('supertest')
 const User = require('../models/user')
 const helper = require('./test_helper')
@@ -55,8 +54,32 @@ describe('when there is initially one user at db', () => {
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd.length).toBe(usersAtStart.length)
   })
-})
 
+  test('GET users does not return hashed password', async () => {
+    const users = await api.get('/api/users')
+    const firstUser = users.body[0]
+
+    expect(firstUser.passwordHash).toBeUndefined()
+    expect(firstUser.username).toBeDefined()
+  })
+
+  test('created user does not have any blogs', async () => {
+    const user = await api.get('/api/users')
+
+    expect(user.body.blogs).toBeUndefined()
+  })
+})
+/*
+describe('', () => {
+  beforeEach(async () => {
+
+  })
+
+  test('', async() => {
+
+  })
+})
+*/
 describe('username and password', () => {
   test('password must be defined', async () => {
     const usersAtStart = await helper.usersInDb()
@@ -140,9 +163,3 @@ describe('username and password', () => {
     expect(usersAtEnd.length).toBe(usersAtStart.length)
   })
 })
-
-/*
-afterAll(() => {
-  mongoose.connection.close()
-})
-*/

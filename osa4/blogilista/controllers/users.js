@@ -13,6 +13,7 @@ userRouter.post('/', async (request, response) => {
     return response.status(400).json({ error: 'password minimum length is 3' })
   }
 
+  // salasanan hashays
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
 
@@ -30,6 +31,14 @@ userRouter.post('/', async (request, response) => {
     // esim. mongoosen validation error
     response.status(400).json({ error: exception.message })
   }
+})
+
+userRouter.get('/', async (request, response) => {
+  const users = await User
+    .find({})
+    .populate('blogs', { url: 1, title: 1, author: 1 })
+
+  response.status(200).json(users.map(u => u.toJSON()))
 })
 
 module.exports = userRouter

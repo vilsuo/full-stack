@@ -1,9 +1,9 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXJuYW1lIDIiLCJpZCI6IjVlNGMzM2QwNzgxYTI0N2QyYTlkZDllOCIsImlhdCI6MTU4MjA1MjMyNH0.ZriZIh9YJ_S3VmX9EfnCW54XOr1_gKVkaDpZn5Uoi_4
 
 {
-  "title": "uusi blogi",
-  "author": "ville",
-  "url": "www...",
-  "likes": 0
+  "author": "antti",
+  "title": "otsikko 4",
+  "url": "urli 4"
 }
