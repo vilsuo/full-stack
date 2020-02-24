@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -12,14 +14,10 @@ const App = () => {
 
   const [user, setUser] = useState(null)
 
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -38,7 +36,6 @@ const App = () => {
       const user = await loginService.login({
         username, password
       })
-      
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       )
@@ -51,7 +48,6 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
-      
     } catch (error) {
       showMessage(error.response.data.error)
     }
@@ -63,29 +59,6 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUserToken')
     setUser(null)
     blogService.setToken(null)
-  }
-
-  const handleBlogPost = async (event) => {
-    event.preventDefault()
-
-    const blogToPost = {
-      title: title,
-      author: author,
-      url: url
-    }
-
-    try {
-      const result = await blogService.create(blogToPost)
-      setBlogs(blogs.concat(result))
-      showMessage(`a new blog ${result.title} by ${result.author} added`)
-
-    } catch (error) {
-      showMessage(error.response.data.error)
-    }
-
-    setTitle('')
-    setAuthor('')
-    setUrl('')
   }
 
   const showMessage = message => {
@@ -104,21 +77,21 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
             username
-              <input 
-                type="text"
-                value={username}
-                name="Username"
-                onChange={({ target }) => setUsername(target.value)}
-              />
+            <input
+              type="text"
+              value={username}
+              name="Username"
+              onChange={({ target }) => setUsername(target.value)}
+            />
           </div>
           <div>
             password
-              <input
-                type="text"
-                value={password}
-                name="Password"
-                onChange={({ target }) => setPassword(target.value)}
-              />
+            <input
+              type="text"
+              value={password}
+              name="Password"
+              onChange={({ target }) => setPassword(target.value)}
+            />
           </div>
           <button type="submit">login</button>
         </form>
@@ -132,44 +105,27 @@ const App = () => {
       <p>{message}</p>
       <div>
         {user.username} logged in
-        <button type="submit" onClick={handleLogout}>logout</button>
+        <button onClick={handleLogout}>logout</button>
       </div>
-      <h2>create new</h2>
       <div>
-        <form onSubmit={handleBlogPost}>
-          <div>
-            title
-              <input
-                type="text"
-                value={title}
-                name="Title"
-                onChange={({ target }) => setTitle(target.value)}
-              />
-          </div>
-          <div>
-            author
-              <input
-                type="text"
-                value={author}
-                name="Author"
-                onChange={({ target }) => setAuthor(target.value)}
-              />
-          </div>
-          <div>
-            url
-              <input
-                type="text"
-                value={url}
-                name="Url"
-                onChange={({ target }) => setUrl(target.value)}
-              />
-          </div>
-          <button type="submit">create</button>
-        </form>
+        <Togglable showLabel='create new blog' hideLabel='cancel'>
+          <BlogForm
+            blogs={blogs}
+            setBlogs={setBlogs}
+          />
+        </Togglable>
       </div>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+      {blogs
+        .sort((a, b) => b.likes - a.likes)
+        .map(blog =>
+          <Blog
+            key={blog.id}
+            blog={blog}
+            blogs={blogs}
+            setBlogs={setBlogs}
+          />
+        )
+      }
     </div>
   )
 }

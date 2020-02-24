@@ -12,6 +12,13 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs.map(blog => blog.toJSON()))
 })
 
+blogsRouter.get('/:id', async (request, response) => {
+  const blog = await Blog
+    .findById(request.params.id)
+
+  response.json(blog.toJSON())
+})
+
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
   const token = request.token
@@ -22,8 +29,12 @@ blogsRouter.post('/', async (request, response) => {
   }
 
   const user = await User.findById(decodedToken.id)
-
   const blog = new Blog({ ...body, user: user._id })
+
+  if (!blog.url || !blog.title) {
+    return response.status(400).send({ error: 'title or url is missing'})
+  }
+
   const savedBlog = await blog.save()
 
   user.blogs = user.blogs.concat(savedBlog._id)
